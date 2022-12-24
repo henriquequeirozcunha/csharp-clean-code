@@ -1,4 +1,4 @@
-namespace Domain.Contracts.Persistence
+namespace Application.Contracts.Persistence
 {
     public interface IGenericRepository<T> where T : class
     {

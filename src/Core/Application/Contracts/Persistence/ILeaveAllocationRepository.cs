@@ -1,6 +1,7 @@
+
 using Domain.Entities;
 
-namespace Domain.Contracts.Persistence
+namespace Application.Contracts.Persistence
 {
     public interface ILeaveAllocationRepository : IGenericRepository<LeaveAllocation>
     {
