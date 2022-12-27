@@ -1,5 +1,6 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveAllocations;
+using Application.Exceptions;
 using Application.UseCases.LeaveAllocations.Validators;
 using AutoMapper;
 using Domain.Entities;
@@ -38,7 +39,7 @@ namespace Application.UseCases.LeaveAllocations
                 var validator = new CommandValidator(_repository);
                 var validationResult = await validator.ValidateAsync(request.CreateLeaveAllocationDto);
 
-                if (!validationResult.IsValid) throw new Exception();
+                if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
 
                 var leaveAllocation = _mapper.Map<LeaveAllocation>(request.CreateLeaveAllocationDto);
 

@@ -1,5 +1,7 @@
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 
 namespace Application.UseCases.LeaveAllocations
@@ -24,6 +26,8 @@ namespace Application.UseCases.LeaveAllocations
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
                 var leaveAllocation = await _repository.Get(request.Id);
+
+                if (leaveAllocation == null) throw new NotFoundException(nameof(LeaveAllocation), request.Id);
 
                 await _repository.Remove(leaveAllocation);
 

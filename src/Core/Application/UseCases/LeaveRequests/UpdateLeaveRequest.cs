@@ -1,5 +1,6 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveRequests;
+using Application.Exceptions;
 using Application.UseCases.LeaveRequests.Validators;
 using AutoMapper;
 using FluentValidation;
@@ -38,7 +39,7 @@ namespace Application.UseCases.LeaveRequests
                 var validator = new CommandValidator(_repository);
                 var validationResult = await validator.ValidateAsync(request.UpdateLeaveRequestDto);
 
-                if (!validationResult.IsValid) throw new Exception();
+                if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
 
                 var leaveRequest = await _repository.Get(request.UpdateLeaveRequestDto.Id);
 

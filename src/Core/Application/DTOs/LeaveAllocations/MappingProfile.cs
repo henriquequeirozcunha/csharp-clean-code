@@ -9,6 +9,8 @@ namespace Application.DTOs.LeaveAllocationss
         public MappingProfile()
         {
             CreateMap<LeaveType, LeaveTypeDto>().ReverseMap();
+            CreateMap<LeaveType, CreateLeaveTypeDto>().ReverseMap();
+            CreateMap<LeaveType, UpdateLeaveTypeDto>().ReverseMap();
         }
     }
 }

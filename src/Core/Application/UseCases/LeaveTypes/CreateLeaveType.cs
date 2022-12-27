@@ -1,5 +1,6 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveTypes;
+using Application.Exceptions;
 using Application.UseCases.LeaveTypes.Validators;
 using AutoMapper;
 using Domain.Entities;
@@ -38,7 +39,7 @@ namespace Application.UseCases.LeaveTypes
                 var validator = new CommandValidator();
                 var validationResult = await validator.ValidateAsync(request.LeaveTypeDto);
 
-                if (!validationResult.IsValid) throw new Exception();
+                if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
 
                 var leaveType = _mapper.Map<LeaveType>(request.LeaveTypeDto);
 

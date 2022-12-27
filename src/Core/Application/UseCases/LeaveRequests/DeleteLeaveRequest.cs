@@ -1,5 +1,7 @@
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 
 namespace Application.UseCases.LeaveRequests
@@ -24,6 +26,8 @@ namespace Application.UseCases.LeaveRequests
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
                 var leaveRequest = await _repository.Get(request.Id);
+
+                if (leaveRequest == null) throw new NotFoundException(nameof(LeaveRequest), request.Id);
 
                 await _repository.Remove(leaveRequest);
 

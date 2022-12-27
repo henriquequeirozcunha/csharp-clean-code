@@ -1,5 +1,7 @@
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using AutoMapper;
+using Domain.Entities;
 using MediatR;
 
 namespace Application.UseCases.LeaveTypes
@@ -24,6 +26,8 @@ namespace Application.UseCases.LeaveTypes
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
                 var leaveType = await _repository.Get(request.Id);
+
+                if (leaveType == null) throw new NotFoundException(nameof(LeaveType), request.Id);
 
                 await _repository.Remove(leaveType);
 

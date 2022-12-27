@@ -1,5 +1,6 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveTypes;
+using Application.Exceptions;
 using Application.UseCases.LeaveTypes.Validators;
 using AutoMapper;
 using FluentValidation;
@@ -40,7 +41,7 @@ namespace Application.UseCases.LeaveTypes
                 var validator = new CommandValidator();
                 var validationResult = await validator.ValidateAsync(request.UpdateLeaveTypeDto);
 
-                if (!validationResult.IsValid) throw new Exception();
+                if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
 
                 var leaveType = await _repository.Get(request.UpdateLeaveTypeDto.Id);
 
