@@ -35,6 +35,11 @@ namespace Application.UseCases.LeaveAllocations
 
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
+                var validator = new CommandValidator(_repository);
+                var validationResult = await validator.ValidateAsync(request.CreateLeaveAllocationDto);
+
+                if (!validationResult.IsValid) throw new Exception();
+
                 var leaveAllocation = _mapper.Map<LeaveAllocation>(request.CreateLeaveAllocationDto);
 
                 leaveAllocation = await _repository.Add(leaveAllocation);

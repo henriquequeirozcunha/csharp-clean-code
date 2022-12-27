@@ -12,7 +12,7 @@ namespace Application.UseCases.LeaveRequests
     {
         public class Command : IRequest<int>
         {
-            public CreateLeaveRequestDto LeaveRequestDto { get; set; }
+            public CreateLeaveRequestDto CreateLeaveRequestDto { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<CreateLeaveRequestDto>
@@ -36,7 +36,12 @@ namespace Application.UseCases.LeaveRequests
 
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
-                var leaveRequest = _mapper.Map<LeaveRequest>(request.LeaveRequestDto);
+                var validator = new CommandValidator(_repository);
+                var validationResult = await validator.ValidateAsync(request.CreateLeaveRequestDto);
+
+                if (!validationResult.IsValid) throw new Exception();
+
+                var leaveRequest = _mapper.Map<LeaveRequest>(request.CreateLeaveRequestDto);
 
                 leaveRequest = await _repository.Add(leaveRequest);
 

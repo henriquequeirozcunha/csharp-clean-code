@@ -36,6 +36,10 @@ namespace Application.UseCases.LeaveTypes
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
                 var validator = new CommandValidator();
+                var validationResult = await validator.ValidateAsync(request.LeaveTypeDto);
+
+                if (!validationResult.IsValid) throw new Exception();
+
                 var leaveType = _mapper.Map<LeaveType>(request.LeaveTypeDto);
 
                 leaveType = await _repository.Add(leaveType);

@@ -11,10 +11,10 @@ namespace Application.UseCases.LeaveTypes
     {
         public class Command : IRequest<Unit>
         {
-            public UpdateLeaveTypeDto LeaveTypeDto { get; set; }
+            public UpdateLeaveTypeDto UpdateLeaveTypeDto { get; set; }
         }
 
-        public class CommandValidator : AbstractValidator<LeaveTypeDto>
+        public class CommandValidator : AbstractValidator<UpdateLeaveTypeDto>
         {
             public CommandValidator()
             {
@@ -37,9 +37,14 @@ namespace Application.UseCases.LeaveTypes
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var leaveType = await _repository.Get(request.LeaveTypeDto.Id);
+                var validator = new CommandValidator();
+                var validationResult = await validator.ValidateAsync(request.UpdateLeaveTypeDto);
 
-                _mapper.Map(request.LeaveTypeDto, leaveType);
+                if (!validationResult.IsValid) throw new Exception();
+
+                var leaveType = await _repository.Get(request.UpdateLeaveTypeDto.Id);
+
+                _mapper.Map(request.UpdateLeaveTypeDto, leaveType);
 
                 await _repository.Upadte(leaveType);
 

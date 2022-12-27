@@ -11,7 +11,7 @@ namespace Application.UseCases.LeaveAllocations
     {
         public class Command : IRequest<Unit>
         {
-            public UpdateLeaveAllocationDto LeaveAllocationDto { get; set; }
+            public UpdateLeaveAllocationDto UpdateLeaveAllocationDto { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<UpdateLeaveAllocationDto>
@@ -37,9 +37,14 @@ namespace Application.UseCases.LeaveAllocations
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var leaveAllocation = await _repository.Get(request.LeaveAllocationDto.Id);
+                var validator = new CommandValidator(_repository);
+                var validationResult = await validator.ValidateAsync(request.UpdateLeaveAllocationDto);
 
-                _mapper.Map(request.LeaveAllocationDto, leaveAllocation);
+                if (!validationResult.IsValid) throw new Exception();
+
+                var leaveAllocation = await _repository.Get(request.UpdateLeaveAllocationDto.Id);
+
+                _mapper.Map(request.UpdateLeaveAllocationDto, leaveAllocation);
 
                 await _repository.Upadte(leaveAllocation);
 
