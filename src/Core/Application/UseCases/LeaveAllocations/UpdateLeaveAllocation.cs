@@ -1,6 +1,8 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveAllocations;
+using Application.UseCases.LeaveAllocations.Validators;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.LeaveAllocations
@@ -10,6 +12,16 @@ namespace Application.UseCases.LeaveAllocations
         public class Command : IRequest<Unit>
         {
             public UpdateLeaveAllocationDto LeaveAllocationDto { get; set; }
+        }
+
+        public class CommandValidator : AbstractValidator<UpdateLeaveAllocationDto>
+        {
+            public CommandValidator(ILeaveAllocationRepository repository)
+            {
+               Include(new ILeaveAllocationDtoValidator(repository));
+
+               RuleFor(p => p.Id).NotNull().WithMessage("{PropertyName} must be present");
+            }
         }
 
         public class Handler : IRequestHandler<Command, Unit>

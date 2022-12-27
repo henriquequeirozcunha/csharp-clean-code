@@ -2,7 +2,7 @@ using Application.DTOs.LeaveTypes;
 
 namespace Application.DTOs.LeaveAllocations
 {
-    public class LeaveAllocationDto : BaseDto
+    public class LeaveAllocationDto : BaseDto, ILeaveAllocationDto
     {
         public int NumberOfDays { get; set; }
         public LeaveTypeDto LeaveType { get; set; }

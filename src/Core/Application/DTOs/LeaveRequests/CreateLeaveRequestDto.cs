@@ -1,8 +1,6 @@
-using Application.DTOs.LeaveTypes;
-
 namespace Application.DTOs.LeaveRequests
 {
-    public class CreateLeaveRequestDto
+    public class CreateLeaveRequestDto : BaseDto, ILeaveRequestDto
     {
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

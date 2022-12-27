@@ -7,5 +7,6 @@ namespace Application.Contracts.Persistence
         Task<T> Add(T entity);
         Task<T> Upadte(T entity);
         Task<T> Remove(T entity);
+        Task<bool> Exists(int id);
     }
 }

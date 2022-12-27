@@ -1,6 +1,8 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveTypes;
+using Application.UseCases.LeaveTypes.Validators;
 using AutoMapper;
+using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.LeaveTypes
@@ -10,6 +12,16 @@ namespace Application.UseCases.LeaveTypes
         public class Command : IRequest<Unit>
         {
             public UpdateLeaveTypeDto LeaveTypeDto { get; set; }
+        }
+
+        public class CommandValidator : AbstractValidator<LeaveTypeDto>
+        {
+            public CommandValidator()
+            {
+                Include(new ILeaveTypeDtoValidator());
+
+                RuleFor(p => p.Id).NotNull().WithMessage("{PropertyName} must be present");
+            }
         }
 
         public class Handler : IRequestHandler<Command, Unit>
