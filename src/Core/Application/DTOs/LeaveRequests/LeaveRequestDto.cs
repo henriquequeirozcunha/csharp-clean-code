@@ -8,7 +8,7 @@ namespace Application.DTOs.LeaveRequests
         public DateTime EndDate { get; set; }
         public LeaveTypeDto LeaveType { get; set; }
         public int LeaveTypeId { get; set; }
-        public DateTime DataRequested { get; set; }
+        public DateTime? DataRequested { get; set; }
         public string RequestComments { get; set; }
         public DateTime DataActioned { get; set; }
         public bool? Approved { get; set; }

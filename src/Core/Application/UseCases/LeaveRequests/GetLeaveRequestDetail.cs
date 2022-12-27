@@ -3,7 +3,7 @@ using Application.DTOs.LeaveRequests;
 using AutoMapper;
 using MediatR;
 
-namespace Application.UseCases.LeaveRequest
+namespace Application.UseCases.LeaveRequests
 {
     public class GetLeaveRequestDetail
     {
@@ -24,9 +24,9 @@ namespace Application.UseCases.LeaveRequest
 
             public async Task<LeaveRequestDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                var LeaveRequest = await _repository.GetLeaveRequestWithDetails(request.Id);
+                var leaveRequest = await _repository.GetLeaveRequestWithDetails(request.Id);
 
-                return _mapper.Map<LeaveRequestDto>(LeaveRequest);
+                return _mapper.Map<LeaveRequestDto>(leaveRequest);
             }
         }
     }

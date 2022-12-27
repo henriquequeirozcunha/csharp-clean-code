@@ -3,7 +3,7 @@ using Application.DTOs.LeaveAllocations;
 using AutoMapper;
 using MediatR;
 
-namespace Application.UseCases.LeaveAllocation
+namespace Application.UseCases.LeaveAllocations
 {
     public class GetLeaveAllocationList
     {

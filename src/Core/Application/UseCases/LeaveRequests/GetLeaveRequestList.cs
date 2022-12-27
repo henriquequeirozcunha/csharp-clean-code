@@ -3,7 +3,7 @@ using Application.DTOs.LeaveRequests;
 using AutoMapper;
 using MediatR;
 
-namespace Application.UseCases.LeaveRequest
+namespace Application.UseCases.LeaveRequests
 {
     public class GetLeaveRequestList
     {

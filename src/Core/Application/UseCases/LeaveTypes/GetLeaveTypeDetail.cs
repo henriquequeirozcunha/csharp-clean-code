@@ -3,7 +3,7 @@ using Application.DTOs.LeaveTypes;
 using AutoMapper;
 using MediatR;
 
-namespace Application.UseCases.LeaveTypes.Handlers.Queries
+namespace Application.UseCases.LeaveTypes
 {
     public class GetLeaveTypeDetail
     {
