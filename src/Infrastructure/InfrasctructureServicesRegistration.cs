@@ -1,4 +1,7 @@
+using Application.Contracts.Gateways;
 using Application.Contracts.Persistence;
+using Application.Models;
+using Infrastructure.Gateways.Mail;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +17,8 @@ namespace Infrastructure
             services.AddDbContext<LeaveManagementDbContext>(opt =>
                 opt.UseSqlServer(configuration.GetConnectionString("LeaveManagementConnectionString"))
             );
+            services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+            services.AddTransient<IEmailSender, EmailSender>();
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();

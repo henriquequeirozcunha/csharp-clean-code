@@ -1,6 +1,8 @@
+using Application.Contracts.Gateways;
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveRequests;
 using Application.Exceptions;
+using Application.Models;
 using Application.Responses;
 using Application.UseCases.LeaveRequests.Validators;
 using AutoMapper;
@@ -29,11 +31,15 @@ namespace Application.UseCases.LeaveRequests
         {
             private readonly ILeaveRequestRepository _repository;
             private readonly IMapper _mapper;
-            public Handler(ILeaveRequestRepository repository, IMapper mapper)
+            private readonly IEmailSender _emailSender;
+            public Handler(
+                ILeaveRequestRepository repository,
+                IEmailSender emailSender,
+                IMapper mapper)
             {
                 _mapper = mapper;
                 _repository = repository;
-
+                _emailSender = emailSender;
             }
 
             public async Task<BaseCommandResponse> Handle(Command request, CancellationToken cancellationToken)
@@ -58,6 +64,22 @@ namespace Application.UseCases.LeaveRequests
                 response.Success = false;
                 response.Message = "Creation Successfull";
                 response.Id = leaveRequest.Id;
+
+                var email = new Email
+                {
+                    To = "employee@org.com",
+                    Body = $"Your Leave Request for {request.CreateLeaveRequestDto.StartDate:D} to {request.CreateLeaveRequestDto.EndDate:D}",
+                    Subject = "Leave Request submitted"
+                };
+
+                try
+                {
+                    await _emailSender.SendEmail(email);
+                }
+                catch (Exception ex)
+                {
+                    // LOG ERROR BUT DO NOT THROW EX
+                }
 
                 return response;
             }
