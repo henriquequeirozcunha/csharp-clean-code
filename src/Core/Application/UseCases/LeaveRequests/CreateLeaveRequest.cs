@@ -76,7 +76,7 @@ namespace Application.UseCases.LeaveRequests
                 {
                     await _emailSender.SendEmail(email);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // LOG ERROR BUT DO NOT THROW EX
                 }

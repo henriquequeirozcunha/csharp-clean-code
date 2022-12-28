@@ -12,10 +12,10 @@ namespace Infrastructure
 {
     public static class InfrasctructureServicesRegistration
     {
-        public static IServiceCollection ConfigureServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection ConfigureInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<LeaveManagementDbContext>(opt =>
-                opt.UseSqlServer(configuration.GetConnectionString("LeaveManagementConnectionString"))
+                opt.UseSqlite(configuration.GetConnectionString("LeaveManagementConnectionString"))
             );
             services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
             services.AddTransient<IEmailSender, EmailSender>();
