@@ -5,8 +5,8 @@ namespace Application.Contracts.Persistence
         Task<T> Get(int id);
         Task<IReadOnlyList<T>> GetAll();
         Task<T> Add(T entity);
-        Task<T> Upadte(T entity);
-        Task<T> Remove(T entity);
+        Task Upadte(T entity);
+        Task Remove(T entity);
         Task<bool> Exists(int id);
     }
 }

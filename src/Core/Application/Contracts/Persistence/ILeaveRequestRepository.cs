@@ -6,7 +6,8 @@ namespace Application.Contracts.Persistence
 {
     public interface ILeaveRequestRepository : IGenericRepository<LeaveRequest>
     {
-        Task<List<LeaveRequestDto>> GetLeaveRequestsWithDetails();
-        Task<LeaveRequestDto> GetLeaveRequestWithDetails(int id);
+        Task<List<LeaveRequest>> GetLeaveRequestsWithDetails();
+        Task<LeaveRequest> GetLeaveRequestWithDetails(int id);
+        Task ChangeApprovalStatus(LeaveRequest leaveRequest, bool? ApprovalStatus);
     }
 }

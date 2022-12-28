@@ -6,7 +6,7 @@ namespace Application.Contracts.Persistence
 {
     public interface ILeaveAllocationRepository : IGenericRepository<LeaveAllocation>
     {
-        Task<List<LeaveAllocationDto>> GetLeaveAllocationsWithDetails();
-        Task<LeaveAllocationDto> GetLeaveAllocationWithDetails(int id);
+        Task<List<LeaveAllocation>> GetLeaveAllocationsWithDetails();
+        Task<LeaveAllocation> GetLeaveAllocationWithDetails(int id);
     }
 }

@@ -12,7 +12,9 @@ namespace Application.UseCases.LeaveRequests
     {
         public class Command : IRequest<Unit>
         {
+            public int Id { get; set; }
             public UpdateLeaveRequestDto UpdateLeaveRequestDto { get; set; }
+            public ChangeLeaveRequestApprovalDto ChangeLeaveRequestApprovalDto { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<UpdateLeaveRequestDto>
@@ -41,11 +43,19 @@ namespace Application.UseCases.LeaveRequests
 
                 if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
 
-                var leaveRequest = await _repository.Get(request.UpdateLeaveRequestDto.Id);
+                if (request.UpdateLeaveRequestDto != null)
+                {
+                    var leaveRequest = await _repository.Get(request.UpdateLeaveRequestDto.Id);
 
-                _mapper.Map(request.UpdateLeaveRequestDto, leaveRequest);
+                    _mapper.Map(request.UpdateLeaveRequestDto, leaveRequest);
 
-                await _repository.Upadte(leaveRequest);
+                    await _repository.Upadte(leaveRequest);
+                } else if (request.ChangeLeaveRequestApprovalDto != null)
+                {
+                    var leaveRequest = await _repository.Get(request.Id);
+
+                    await _repository.ChangeApprovalStatus(leaveRequest, request.ChangeLeaveRequestApprovalDto.Approved);
+                }
 
                 return Unit.Value;
             }
