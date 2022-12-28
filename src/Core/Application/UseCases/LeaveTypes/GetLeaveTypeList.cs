@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.UseCases.LeaveTypes
 {
-    public class GetLeaveTypeListRequest
+    public class GetLeaveTypeList
     {
         public class Query : IRequest<List<LeaveTypeDto>> {}
 
