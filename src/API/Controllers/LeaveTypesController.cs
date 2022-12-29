@@ -1,12 +1,14 @@
 using Application.DTOs.LeaveTypes;
 using Application.Responses;
 using Application.UseCases.LeaveTypes;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LeaveTypesController : BaseController
     {
         [HttpGet]
