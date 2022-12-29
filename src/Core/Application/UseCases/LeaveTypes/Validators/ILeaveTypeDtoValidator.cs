@@ -16,7 +16,7 @@ namespace Application.UseCases.LeaveTypes.Validators
                 RuleFor(p => p.DefaultDays)
                 .NotEmpty().WithMessage("{PropertyName} is required")
                 .GreaterThan(1).WithMessage("{PropertyName} must be at least {ComparisonValue}")
-                .GreaterThan(100).WithMessage("{PropertyName} must be at least {ComparisonValue}");
+                .LessThan(100).WithMessage("{PropertyName} must be at least {ComparisonValue}");
         }
     }
 }
