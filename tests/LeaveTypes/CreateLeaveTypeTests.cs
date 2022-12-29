@@ -1,6 +1,7 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveTypes;
 using Application.Exceptions;
+using Application.Responses;
 using Application.UseCases.LeaveTypes;
 using AutoMapper;
 using Shouldly;
@@ -39,7 +40,7 @@ namespace tests.LeaveTypes
 
             var leaveTypes = await _mockRepo.Object.GetAll();
 
-            result.ShouldBeOfType<int>();
+            result.ShouldBeOfType<BaseCommandResponse>();
             leaveTypes.Count.ShouldBe(3);
         }
 
@@ -72,11 +73,17 @@ namespace tests.LeaveTypes
             // );
 
             // Em forma de promise
-            var promise = _sut.Handle(new CreateLeaveType.Command() { LeaveTypeDto =  _leaveTypeDto}, CancellationToken.None);
+            // var promise = _sut.Handle(new CreateLeaveType.Command() { LeaveTypeDto =  _leaveTypeDto}, CancellationToken.None);
 
-            var ex = await Should.ThrowAsync<CustomValidationException>(promise);
+            // var ex = await Should.ThrowAsync<CustomValidationException>(promise);
 
-            ex.ShouldNotBeNull();
+            // ex.ShouldNotBeNull();
+
+            var result = await _sut.Handle(new CreateLeaveType.Command() { LeaveTypeDto =  _leaveTypeDto}, CancellationToken.None);
+            var leaveTypes = await _mockRepo.Object.GetAll();
+
+            result.ShouldBeOfType<BaseCommandResponse>();
+            leaveTypes.Count.ShouldBe(2);
         }
     }
 }

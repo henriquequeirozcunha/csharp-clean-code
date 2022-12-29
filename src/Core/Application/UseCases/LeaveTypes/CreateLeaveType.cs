@@ -1,6 +1,7 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveTypes;
 using Application.Exceptions;
+using Application.Responses;
 using Application.UseCases.LeaveTypes.Validators;
 using AutoMapper;
 using Domain.Entities;
@@ -11,7 +12,7 @@ namespace Application.UseCases.LeaveTypes
 {
     public class CreateLeaveType
     {
-        public class Command : IRequest<int>
+        public class Command : IRequest<BaseCommandResponse>
         {
             public CreateLeaveTypeDto LeaveTypeDto { get; set; }
         }
@@ -24,7 +25,7 @@ namespace Application.UseCases.LeaveTypes
             }
         }
 
-        public class Handler : IRequestHandler<Command, int>
+        public class Handler : IRequestHandler<Command, BaseCommandResponse>
         {
             private readonly ILeaveTypeRepository _repository;
             private readonly IMapper _mapper;
@@ -34,18 +35,32 @@ namespace Application.UseCases.LeaveTypes
                 _repository = repository;
             }
 
-            public async Task<int> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<BaseCommandResponse> Handle(Command request, CancellationToken cancellationToken)
             {
                 var validator = new CommandValidator();
                 var validationResult = await validator.ValidateAsync(request.LeaveTypeDto);
 
-                if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
+                if (!validationResult.IsValid)
+                {
+                    return new BaseCommandResponse
+                    {
+                        Success = false,
+                        Message = "Creation Failed",
+                        Errors = validationResult.Errors.Select(error => error.ErrorMessage).ToList()
+                    };
+                    throw new CustomValidationException(validationResult);
+                }
 
                 var leaveType = _mapper.Map<LeaveType>(request.LeaveTypeDto);
 
                 leaveType = await _repository.Add(leaveType);
 
-                return leaveType.Id;
+                return new BaseCommandResponse
+                {
+                    Success = true,
+                    Message = "Creation Successfull",
+                    Id = leaveType.Id
+                };
             }
         }
     }

@@ -1,4 +1,5 @@
 using Application.DTOs.LeaveTypes;
+using Application.Responses;
 using Application.UseCases.LeaveTypes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +24,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post([FromBody] CreateLeaveTypeDto leaveType)
+        public async Task<ActionResult<BaseCommandResponse>> Post([FromBody] CreateLeaveTypeDto leaveType)
         {
             var response = await Mediator.Send(new CreateLeaveType.Command { LeaveTypeDto = leaveType });
 
