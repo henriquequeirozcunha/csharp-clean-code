@@ -1,7 +1,6 @@
 using Application.Contracts.Identity;
 using Application.Models.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace API.Controllers
 {

@@ -8,6 +8,7 @@ namespace Infrastructure.Identity.Configurations
     {
         public void Configure(EntityTypeBuilder<IdentityUserRole<string>> builder)
         {
+            builder.HasKey(p => new { p.RoleId, p.UserId });
             builder.HasData(
                 new IdentityUserRole<string>
                 {
