@@ -1,4 +1,5 @@
 using Application.DTOs.LeaveAllocations;
+using Application.Responses;
 using Application.UseCases.LeaveAllocations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,7 +24,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post([FromBody] CreateLeaveAllocationDto leaveAllocation)
+        public async Task<ActionResult<BaseCommandResponse>> Post([FromBody] CreateLeaveAllocationDto leaveAllocation)
         {
             var response = await Mediator.Send(new CreateLeaveAllocation.Command { CreateLeaveAllocationDto = leaveAllocation });
             //var response = await Mediator.Send(command);

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Application.Contracts.Persistence;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,19 @@ namespace Infrastructure.Persistence.Repositories
         public LeaveAllocationRepository(LeaveManagementDbContext dbContext) : base(dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public async Task AddAllocations(List<LeaveAllocation> allocations)
+        {
+            await _dbContext.AddRangeAsync(allocations);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> AllocationExists(string userId, int leaveTypeId, int period)
+        {
+            Expression<Func<LeaveAllocation, bool>> expression = q => q.EmployeeId == userId && q.LeaveTypeId == leaveTypeId && q.Period == period;
+
+            return await _dbContext.LeaveAllocations.AnyAsync(expression);
         }
 
         public async Task<List<LeaveAllocation>> GetLeaveAllocationsWithDetails()

@@ -21,9 +21,7 @@ namespace Application.UseCases.LeaveAllocations.Validators
                 .GreaterThan(0)
                 .MustAsync(async (id, token) =>
                 {
-                    var leaveTypeExists = await _repository.Exists(id);
-
-                    return !leaveTypeExists;
+                    return await _repository.Exists(id);
                 });
         }
     }

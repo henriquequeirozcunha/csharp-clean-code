@@ -46,6 +46,7 @@ namespace Infrastructure
             services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
             services.AddScoped<ILeaveAllocationRepository, LeaveAllocationRepository>();
             services.AddTransient<IAuthService, AuthService>();
+            services.AddTransient<IUserService, UserService>();
 
              services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<LeaveManagementIdentityDbContext>().AddDefaultTokenProviders();
