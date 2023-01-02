@@ -1,11 +1,12 @@
 using Application.DTOs.LeaveRequests;
+using Application.Responses;
 using Application.UseCases.LeaveRequests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Authorize]
     public class LeaveRequestsController : BaseController
     {
         [HttpGet]
@@ -23,7 +24,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<int>> Post([FromBody] CreateLeaveRequestDto leaveRequest)
+        public async Task<ActionResult<BaseCommandResponse>> Post([FromBody] CreateLeaveRequestDto leaveRequest)
         {
             var response = await Mediator.Send(new CreateLeaveRequest.Command { CreateLeaveRequestDto = leaveRequest });
             //var response = await Mediator.Send(command);

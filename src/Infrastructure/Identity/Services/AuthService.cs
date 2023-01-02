@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.Contants;
 using Application.Contracts.Identity;
 using Application.Models.Identity;
 using Infrastructure.Identity.Models;
@@ -64,7 +65,7 @@ namespace Infrastructure.Identity.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim("uid", user.Id)
+                new Claim(CustomClaimTypes.Uid, user.Id)
             }
             .Union(userClaims)
             .Union(roleClaims);

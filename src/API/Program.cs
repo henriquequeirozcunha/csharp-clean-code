@@ -5,6 +5,9 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 
+// Add Http data to API - Get User Data(Token) inside Handler/Controllers
+builder.Services.AddHttpContextAccessor();
+
 // Add services to the container.
 builder.Services.ConfigureApplicationServices();
 builder.Services.ConfigureInfrastructureServices(builder.Configuration);

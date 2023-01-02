@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Application.Contracts.Gateways;
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveRequests;
@@ -9,6 +10,7 @@ using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.UseCases.LeaveRequests
 {
@@ -29,24 +31,39 @@ namespace Application.UseCases.LeaveRequests
 
         public class Handler : IRequestHandler<Command, BaseCommandResponse>
         {
-            private readonly ILeaveRequestRepository _repository;
+            private readonly IHttpContextAccessor _httpContextAccessor;
+            private readonly ILeaveRequestRepository _leaveRequestRepository;
+            private readonly ILeaveAllocationRepository _leaveAllocationRepository;
             private readonly IMapper _mapper;
             private readonly IEmailSender _emailSender;
             public Handler(
-                ILeaveRequestRepository repository,
+                IHttpContextAccessor httpContextAccessor,
+                ILeaveRequestRepository leaveRequestRepository,
+                ILeaveAllocationRepository leaveAllocationRepository,
                 IEmailSender emailSender,
                 IMapper mapper)
             {
+                _httpContextAccessor = httpContextAccessor;
                 _mapper = mapper;
-                _repository = repository;
+                _leaveRequestRepository = leaveRequestRepository;
+                _leaveAllocationRepository = leaveAllocationRepository;
                 _emailSender = emailSender;
             }
 
             public async Task<BaseCommandResponse> Handle(Command request, CancellationToken cancellationToken)
             {
                 var response = new BaseCommandResponse();
-                var validator = new CommandValidator(_repository);
+                var validator = new CommandValidator(_leaveRequestRepository);
                 var validationResult = await validator.ValidateAsync(request.CreateLeaveRequestDto);
+                var userId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
+                var allocation = await _leaveAllocationRepository.GetUserAllocations(userId, request.CreateLeaveRequestDto.LeaveTypeId);
+
+                int daysRequested = (int)(request.CreateLeaveRequestDto.EndDate - request.CreateLeaveRequestDto.StartDate).TotalDays;
+
+                if (daysRequested > allocation.NumberOfDays)
+                {
+                    validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure(nameof(request.CreateLeaveRequestDto.EndDate), "You do not have enough days for this request"));
+                }
 
                 if (!validationResult.IsValid)
                 {
@@ -59,11 +76,15 @@ namespace Application.UseCases.LeaveRequests
 
                 var leaveRequest = _mapper.Map<LeaveRequest>(request.CreateLeaveRequestDto);
 
-                leaveRequest = await _repository.Add(leaveRequest);
+                leaveRequest.RequestingEmployeeId = userId;
+
+                leaveRequest = await _leaveRequestRepository.Add(leaveRequest);
 
                 response.Success = false;
                 response.Message = "Creation Successfull";
                 response.Id = leaveRequest.Id;
+
+                var emailAddress = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Email).Value;
 
                 var email = new Email
                 {
