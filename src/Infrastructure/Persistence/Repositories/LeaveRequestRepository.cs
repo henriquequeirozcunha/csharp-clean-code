@@ -26,6 +26,11 @@ namespace Infrastructure.Persistence.Repositories
             return await _dbContext.LeaveRequests.Include(r => r.LeaveType).ToListAsync();
         }
 
+        public async Task<List<LeaveRequest>> GetLeaveRequestsWithDetails(string userId)
+        {
+            return await _dbContext.LeaveRequests.Where(r => r.RequestingEmployeeId == userId).Include(r => r.LeaveType).ToListAsync();
+        }
+
         public async Task<LeaveRequest> GetLeaveRequestWithDetails(int id)
         {
             return await _dbContext.LeaveRequests.Include(r => r.LeaveType).FirstOrDefaultAsync(r => r.Id == id);

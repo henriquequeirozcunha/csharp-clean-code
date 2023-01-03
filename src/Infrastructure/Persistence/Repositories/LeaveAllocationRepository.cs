@@ -31,6 +31,11 @@ namespace Infrastructure.Persistence.Repositories
             return await _dbContext.LeaveAllocations.Include(r => r.LeaveType).ToListAsync();
         }
 
+        public async Task<List<LeaveAllocation>> GetLeaveAllocationsWithDetails(string userId)
+        {
+            return await _dbContext.LeaveAllocations.Where(a => a.EmployeeId == userId).Include(r => r.LeaveType).ToListAsync();
+        }
+
         public async Task<LeaveAllocation> GetLeaveAllocationWithDetails(int id)
         {
             return await _dbContext.LeaveAllocations.Include(r => r.LeaveType).FirstOrDefaultAsync(r => r.Id == id);

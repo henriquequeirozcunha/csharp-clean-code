@@ -23,5 +23,18 @@ namespace Infrastructure.Identity.Services
                 LastName = q.LastName
             }).ToList();
         }
+
+        public async Task<Employee> GetEmployee(string userId)
+        {
+            var employee = await _userManager.FindByIdAsync(userId);
+
+            return new Employee
+            {
+                Email = employee.Email,
+                Id = employee.Id,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName
+            };
+        }
     }
 }

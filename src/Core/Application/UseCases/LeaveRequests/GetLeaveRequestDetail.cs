@@ -1,3 +1,4 @@
+using Application.Contracts.Identity;
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveRequests;
 using AutoMapper;
@@ -16,8 +17,10 @@ namespace Application.UseCases.LeaveRequests
         {
             private readonly ILeaveRequestRepository _repository;
             private readonly IMapper _mapper;
-            public Handler(ILeaveRequestRepository repository, IMapper mapper)
+            private readonly IUserService _userService;
+            public Handler(ILeaveRequestRepository repository, IMapper mapper, IUserService userService)
             {
+                _userService = userService;
                 _mapper = mapper;
                 _repository = repository;
             }
@@ -25,8 +28,11 @@ namespace Application.UseCases.LeaveRequests
             public async Task<LeaveRequestDto> Handle(Query request, CancellationToken cancellationToken)
             {
                 var leaveRequest = await _repository.GetLeaveRequestWithDetails(request.Id);
+                var req = _mapper.Map<LeaveRequestDto>(leaveRequest);
 
-                return _mapper.Map<LeaveRequestDto>(leaveRequest);
+                req.Employee = await _userService.GetEmployee(req.RequestingEmployeeId);
+
+                return req;
             }
         }
     }

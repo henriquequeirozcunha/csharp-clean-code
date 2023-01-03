@@ -10,9 +10,9 @@ namespace API.Controllers
     public class LeaveAllocationsController : BaseController
     {
         [HttpGet]
-        public async Task<ActionResult<List<LeaveAllocationDto>>> Get()
+        public async Task<ActionResult<List<LeaveAllocationDto>>> Get(bool isLoggedInUser = false)
         {
-            var leaveAllocations = await Mediator.Send(new GetLeaveAllocationList.Query());
+            var leaveAllocations = await Mediator.Send(new GetLeaveAllocationList.Query { IsLoggedInUser = isLoggedInUser });
             return Ok(leaveAllocations);
         }
 
