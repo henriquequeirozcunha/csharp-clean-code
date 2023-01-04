@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence
 {
-    public class LeaveManagementDbContext : DbContext
+    public class LeaveManagementDbContext : AuditableDbContext
     {
         public LeaveManagementDbContext(DbContextOptions<LeaveManagementDbContext> options) : base(options)
         {
@@ -15,21 +15,6 @@ namespace Infrastructure.Persistence
         {
             //modelBuilder.ApplyConfigurationsFromAssembly(typeof(LeaveManagementDbContext).Assembly);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-        }
-
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            foreach (var entry in ChangeTracker.Entries<BaseDomainEntity>())
-            {
-                entry.Entity.LastModifiedDate = DateTime.Now;
-
-                if (entry.State == EntityState.Added)
-                {
-                    entry.Entity.DataCreated = DateTime.Now;
-                }
-            }
-
-            return base.SaveChangesAsync(cancellationToken);
         }
 
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
