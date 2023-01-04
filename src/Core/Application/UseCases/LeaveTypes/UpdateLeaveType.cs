@@ -27,12 +27,12 @@ namespace Application.UseCases.LeaveTypes
 
         public class Handler : IRequestHandler<Command, Unit>
         {
-            private readonly ILeaveTypeRepository _repository;
+            private readonly IUnitOfWork _unitOfWork;
             private readonly IMapper _mapper;
-            public Handler(ILeaveTypeRepository repository, IMapper mapper)
+            public Handler(IUnitOfWork unitOfWork, IMapper mapper)
             {
                 _mapper = mapper;
-                _repository = repository;
+                _unitOfWork = unitOfWork;
 
             }
 
@@ -43,11 +43,14 @@ namespace Application.UseCases.LeaveTypes
 
                 if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
 
-                var leaveType = await _repository.Get(request.UpdateLeaveTypeDto.Id);
+                var leaveType = await _unitOfWork.leaveTypeRepository.Get(request.UpdateLeaveTypeDto.Id);
+
+                if (leaveType is null) throw new NotFoundException(nameof(leaveType), request.UpdateLeaveTypeDto.Id);
 
                 _mapper.Map(request.UpdateLeaveTypeDto, leaveType);
 
-                await _repository.Upadte(leaveType);
+                await _unitOfWork.leaveTypeRepository.Upadte(leaveType);
+                await _unitOfWork.Save();
 
                 return Unit.Value;
             }

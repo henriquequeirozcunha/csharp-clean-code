@@ -40,6 +40,8 @@ namespace Application.UseCases.LeaveRequests
             {
                 var leaveRequest = await _unitOfWork.leaveRequestRepository.Get(request.Id);
 
+                if (leaveRequest is null) throw new NotFoundException(nameof(leaveRequest), request.Id);
+
                 if (request.UpdateLeaveRequestDto != null)
                 {
                     var validator = new CommandValidator(_unitOfWork.leaveRequestRepository);

@@ -27,27 +27,30 @@ namespace Application.UseCases.LeaveAllocations
 
         public class Handler : IRequestHandler<Command, Unit>
         {
-            private readonly ILeaveAllocationRepository _repository;
+            private readonly IUnitOfWork _unitOfWork;
             private readonly IMapper _mapper;
-            public Handler(ILeaveAllocationRepository repository, IMapper mapper)
+            public Handler(IUnitOfWork unitOfWork, IMapper mapper)
             {
                 _mapper = mapper;
-                _repository = repository;
+                _unitOfWork = unitOfWork;
 
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var validator = new CommandValidator(_repository);
+                var validator = new CommandValidator(_unitOfWork.leaveAllocationRepository);
                 var validationResult = await validator.ValidateAsync(request.UpdateLeaveAllocationDto);
 
                 if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
 
-                var leaveAllocation = await _repository.Get(request.UpdateLeaveAllocationDto.Id);
+                var leaveAllocation = await _unitOfWork.leaveAllocationRepository.Get(request.UpdateLeaveAllocationDto.Id);
+
+                if (leaveAllocation is null) throw new NotFoundException(nameof(leaveAllocation), request.UpdateLeaveAllocationDto.Id);
 
                 _mapper.Map(request.UpdateLeaveAllocationDto, leaveAllocation);
 
-                await _repository.Upadte(leaveAllocation);
+                await _unitOfWork.leaveAllocationRepository.Upadte(leaveAllocation);
+                await _unitOfWork.Save();
 
                 return Unit.Value;
             }
