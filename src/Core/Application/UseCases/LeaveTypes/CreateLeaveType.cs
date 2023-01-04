@@ -27,12 +27,12 @@ namespace Application.UseCases.LeaveTypes
 
         public class Handler : IRequestHandler<Command, BaseCommandResponse>
         {
-            private readonly ILeaveTypeRepository _repository;
+            private readonly IUnitOfWork _unitOfWork;
             private readonly IMapper _mapper;
-            public Handler(ILeaveTypeRepository repository, IMapper mapper)
+            public Handler(IUnitOfWork unitOfWork, IMapper mapper)
             {
                 _mapper = mapper;
-                _repository = repository;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<BaseCommandResponse> Handle(Command request, CancellationToken cancellationToken)
@@ -53,7 +53,9 @@ namespace Application.UseCases.LeaveTypes
 
                 var leaveType = _mapper.Map<LeaveType>(request.LeaveTypeDto);
 
-                leaveType = await _repository.Add(leaveType);
+                leaveType = await _unitOfWork.leaveTypeRepository.Add(leaveType);
+
+                await _unitOfWork.Save();
 
                 return new BaseCommandResponse
                 {

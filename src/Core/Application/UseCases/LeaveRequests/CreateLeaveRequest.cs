@@ -31,38 +31,43 @@ namespace Application.UseCases.LeaveRequests
 
         public class Handler : IRequestHandler<Command, BaseCommandResponse>
         {
+            private readonly IUnitOfWork _unitOfWork;
             private readonly IHttpContextAccessor _httpContextAccessor;
-            private readonly ILeaveRequestRepository _leaveRequestRepository;
-            private readonly ILeaveAllocationRepository _leaveAllocationRepository;
             private readonly IMapper _mapper;
             private readonly IEmailSender _emailSender;
             public Handler(
+                IUnitOfWork unitOfWork,
                 IHttpContextAccessor httpContextAccessor,
-                ILeaveRequestRepository leaveRequestRepository,
-                ILeaveAllocationRepository leaveAllocationRepository,
                 IEmailSender emailSender,
                 IMapper mapper)
             {
+                _unitOfWork = unitOfWork;
                 _httpContextAccessor = httpContextAccessor;
                 _mapper = mapper;
-                _leaveRequestRepository = leaveRequestRepository;
-                _leaveAllocationRepository = leaveAllocationRepository;
                 _emailSender = emailSender;
             }
 
             public async Task<BaseCommandResponse> Handle(Command request, CancellationToken cancellationToken)
             {
                 var response = new BaseCommandResponse();
-                var validator = new CommandValidator(_leaveRequestRepository);
+                var validator = new CommandValidator(_unitOfWork.leaveRequestRepository);
                 var validationResult = await validator.ValidateAsync(request.CreateLeaveRequestDto);
                 var userId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "uid")?.Value;
-                var allocation = await _leaveAllocationRepository.GetUserAllocations(userId, request.CreateLeaveRequestDto.LeaveTypeId);
+                var allocation = await _unitOfWork.leaveAllocationRepository.GetUserAllocations(userId, request.CreateLeaveRequestDto.LeaveTypeId);
 
                 int daysRequested = (int)(request.CreateLeaveRequestDto.EndDate - request.CreateLeaveRequestDto.StartDate).TotalDays;
 
-                if (daysRequested > allocation.NumberOfDays)
+                if (allocation is null)
                 {
-                    validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure(nameof(request.CreateLeaveRequestDto.EndDate), "You do not have enough days for this request"));
+                    validationResult.Errors.Add(
+                        new FluentValidation.Results.ValidationFailure(nameof(request.CreateLeaveRequestDto.LeaveTypeId), "You do not allocation for this leave type"));
+                }
+                else
+                {
+                    if (daysRequested > allocation.NumberOfDays)
+                    {
+                        validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure(nameof(request.CreateLeaveRequestDto.EndDate), "You do not have enough days for this request"));
+                    }
                 }
 
                 if (!validationResult.IsValid)
@@ -78,7 +83,8 @@ namespace Application.UseCases.LeaveRequests
 
                 leaveRequest.RequestingEmployeeId = userId;
 
-                leaveRequest = await _leaveRequestRepository.Add(leaveRequest);
+                leaveRequest = await _unitOfWork.leaveRequestRepository.Add(leaveRequest);
+                await _unitOfWork.Save();
 
                 response.Success = false;
                 response.Message = "Creation Successfull";

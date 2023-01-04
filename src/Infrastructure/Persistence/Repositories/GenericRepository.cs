@@ -14,7 +14,6 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<T> Add(T entity)
         {
             await _dbContext.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
             return entity;
         }
 
@@ -38,13 +37,11 @@ namespace Infrastructure.Persistence.Repositories
         public async Task Remove(T entity)
         {
             _dbContext.Set<T>().Remove(entity);
-            await _dbContext.SaveChangesAsync();
         }
 
         public async Task Upadte(T entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
         }
     }
 }

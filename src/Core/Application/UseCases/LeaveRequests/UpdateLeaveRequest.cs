@@ -21,55 +21,53 @@ namespace Application.UseCases.LeaveRequests
         {
             public CommandValidator(ILeaveRequestRepository repository)
             {
-               Include(new ILeaveRequestDtoValidator(repository));
+                Include(new ILeaveRequestDtoValidator(repository));
             }
         }
 
         public class Handler : IRequestHandler<Command, Unit>
         {
-            private readonly ILeaveRequestRepository _leaveRequestRepository;
             private readonly IMapper _mapper;
-            private readonly ILeaveTypeRepository _leaveTypeRepository;
-            private readonly ILeaveAllocationRepository _leaveAllocationRepository;
-            public Handler(ILeaveRequestRepository leaveRequestRepository,
-                IMapper mapper,
-                ILeaveTypeRepository leaveTypeRepository,
-                ILeaveAllocationRepository leaveAllocationRepository)
+            private readonly IUnitOfWork _unitOfWork;
+            public Handler(IUnitOfWork unitOfWork,
+                IMapper mapper)
             {
+                _unitOfWork = unitOfWork;
                 _mapper = mapper;
-                _leaveRequestRepository = leaveRequestRepository;
-                _leaveTypeRepository = leaveTypeRepository;
-                _leaveAllocationRepository = leaveAllocationRepository;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var leaveRequest = await _leaveRequestRepository.Get(request.Id);
+                var leaveRequest = await _unitOfWork.leaveRequestRepository.Get(request.Id);
 
                 if (request.UpdateLeaveRequestDto != null)
                 {
-                    var validator = new CommandValidator(_leaveRequestRepository);
+                    var validator = new CommandValidator(_unitOfWork.leaveRequestRepository);
                     var validationResult = await validator.ValidateAsync(request.UpdateLeaveRequestDto);
 
                     if (!validationResult.IsValid) throw new CustomValidationException(validationResult);
 
                     _mapper.Map(request.UpdateLeaveRequestDto, leaveRequest);
 
-                    await _leaveRequestRepository.Upadte(leaveRequest);
-                } else if (request.ChangeLeaveRequestApprovalDto != null)
+                    await _unitOfWork.leaveRequestRepository.Upadte(leaveRequest);
+                    await _unitOfWork.Save();
+                }
+                else if (request.ChangeLeaveRequestApprovalDto != null)
                 {
-                    await _leaveRequestRepository.ChangeApprovalStatus(leaveRequest, request.ChangeLeaveRequestApprovalDto.Approved);
+                    await _unitOfWork.leaveRequestRepository.ChangeApprovalStatus(leaveRequest, request.ChangeLeaveRequestApprovalDto.Approved);
 
                     if (request.ChangeLeaveRequestApprovalDto.Approved.Value)
                     {
-                        var allocation = await _leaveAllocationRepository.GetUserAllocations(leaveRequest.RequestingEmployeeId, leaveRequest.LeaveTypeId);
+                        var allocation = await _unitOfWork.leaveAllocationRepository.GetUserAllocations(leaveRequest.RequestingEmployeeId, leaveRequest.LeaveTypeId);
 
                         int daysRequested = (int)(leaveRequest.EndDate - leaveRequest.StartDate).TotalDays;
 
                         allocation.NumberOfDays -= daysRequested;
 
-                        await _leaveAllocationRepository.Upadte(allocation);
+                        await _unitOfWork.leaveAllocationRepository.Upadte(allocation);
                     }
+
+                    await _unitOfWork.Save();
                 }
 
                 return Unit.Value;
