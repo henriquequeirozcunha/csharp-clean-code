@@ -1,12 +1,9 @@
 using Application.Contracts.Persistence;
 using Application.DTOs.LeaveTypes;
-using Application.Exceptions;
 using Application.Responses;
 using Application.UseCases.LeaveTypes;
 using AutoMapper;
 using Domain.Entities;
-using NUnit.Framework;
-using Shouldly;
 using tests.Mocks;
 
 namespace tests.Core.Application.UseCases.LeaveTypes
@@ -119,9 +116,6 @@ namespace tests.Core.Application.UseCases.LeaveTypes
                 Message = "Creation Failed",
                 Errors = new List<string> { "Default Days is required" }
             };
-
-            // TestContext.Progress.Write(JsonConvert.SerializeObject(result, Formatting.Indented));
-            // TestContext.Progress.Write(JsonConvert.SerializeObject(expectedResult, Formatting.Indented));
 
             result.ShouldBeEquivalentTo(expectedResult);
 

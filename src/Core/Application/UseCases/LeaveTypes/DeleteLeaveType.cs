@@ -15,21 +15,22 @@ namespace Application.UseCases.LeaveTypes
 
         public class Handler : IRequestHandler<Command, Unit>
         {
-            private readonly ILeaveTypeRepository _repository;
+            private readonly IUnitOfWork _unitOfWork;
             private readonly IMapper _mapper;
-            public Handler(ILeaveTypeRepository repository, IMapper mapper)
+            public Handler(IUnitOfWork unitOfWork, IMapper mapper)
             {
                 _mapper = mapper;
-                _repository = repository;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var leaveType = await _repository.Get(request.Id);
+                var leaveType = await _unitOfWork.leaveTypeRepository.Get(request.Id);
 
                 if (leaveType == null) throw new NotFoundException(nameof(LeaveType), request.Id);
 
-                await _repository.Remove(leaveType);
+                await _unitOfWork.leaveTypeRepository.Remove(leaveType);
+                await _unitOfWork.Save();
 
                 return Unit.Value;
             }
