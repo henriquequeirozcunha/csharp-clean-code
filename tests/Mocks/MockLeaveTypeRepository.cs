@@ -32,6 +32,12 @@ namespace tests.Mocks
                 return leaveType;
             });
 
+            mockRepo.Setup(r => r.Get(It.IsAny<int>())).ReturnsAsync(new LeaveType {
+                 Id = 99,
+                 DefaultDays = 99,
+                 Name = "Any Name"
+            });
+
             return mockRepo;
         }
     }

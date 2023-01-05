@@ -4,18 +4,22 @@ using Application.Exceptions;
 using Application.Responses;
 using Application.UseCases.LeaveTypes;
 using AutoMapper;
+using NUnit.Framework;
 using Shouldly;
 using tests.Mocks;
 
-namespace tests.LeaveTypes
+namespace tests.Core.Application.UseCases.LeaveTypes
 {
+    [TestFixture]
     public class CreateLeaveTypeTests
     {
-        private readonly IMapper _mapper;
-        private readonly Mock<IUnitOfWork> _mockUow;
-        private readonly CreateLeaveTypeDto _leaveTypeDto;
-        private readonly CreateLeaveType.Handler _sut;
-        public CreateLeaveTypeTests()
+        private IMapper _mapper;
+        private Mock<IUnitOfWork> _mockUow;
+        private CreateLeaveTypeDto _leaveTypeDto;
+        private CreateLeaveType.Handler _sut;
+
+        [SetUp]
+        public void MakeSut()
         {
             _mockUow = MockUnitOfWork.GetUnitOfWork();
 
@@ -33,7 +37,7 @@ namespace tests.LeaveTypes
             };
         }
 
-        [Fact]
+        [Test]
         public async Task Should_Create_Leave_Type_On_Success()
         {
             var result = await _sut.Handle(new CreateLeaveType.Command() { LeaveTypeDto =  _leaveTypeDto}, CancellationToken.None);
@@ -44,7 +48,19 @@ namespace tests.LeaveTypes
             leaveTypes.Count.ShouldBe(3);
         }
 
-        [Fact]
+        [Test]
+        [Ignore("Test Ignore")]
+        public async Task Should_BeIgnored()
+        {
+            var result = await _sut.Handle(new CreateLeaveType.Command() { LeaveTypeDto =  _leaveTypeDto}, CancellationToken.None);
+
+            var leaveTypes = await _mockUow.Object.leaveTypeRepository.GetAll();
+
+            result.ShouldBeOfType<BaseCommandResponse>();
+            leaveTypes.Count.ShouldBe(3);
+        }
+
+        [Test]
         public async Task Should_Throw_Validation_Exception_On_Invalid_Input()
         {
             _leaveTypeDto.DefaultDays = -1;
