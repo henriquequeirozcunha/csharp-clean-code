@@ -14,10 +14,16 @@ namespace tests.Core.Application.UseCases.LeaveTypes
         private IMapper _mapper;
         private Mock<IUnitOfWork> _mockUow;
         private DeleteLeaveType.Handler _sut;
+        private Mock<ILeaveTypeRepository> _mockLeaveTypeRepo;
+        private LeaveType _leaveType;
 
         [SetUp]
         public void MakeSut()
         {
+            _leaveType = new LeaveType { Id = 1, Name = "Any Name" };
+
+            _mockLeaveTypeRepo = new Mock<ILeaveTypeRepository>();
+
             _mockUow = MockUnitOfWork.GetUnitOfWork();
 
             var mapperConfig = new MapperConfiguration(c => {
@@ -41,11 +47,9 @@ namespace tests.Core.Application.UseCases.LeaveTypes
         [Test(Description = "Should Throw NotFoundException if LeaveType is not found")]
         public async Task should_throw_not_found_exception_on_invalid_id()
         {
-            var mockLeaveTypeRepo = new Mock<ILeaveTypeRepository>();
+            _mockLeaveTypeRepo.Setup(r => r.Get(It.IsAny<int>())).ReturnsAsync(() => null);
 
-            mockLeaveTypeRepo.Setup(r => r.Get(It.IsAny<int>())).ReturnsAsync(() => null);
-
-            _mockUow.Setup(r => r.leaveTypeRepository).Returns(mockLeaveTypeRepo.Object);
+            _mockUow.Setup(r => r.leaveTypeRepository).Returns(_mockLeaveTypeRepo.Object);
 
             var promise = _sut.Handle(new DeleteLeaveType.Command() { Id = 1 }, CancellationToken.None);
 
@@ -60,12 +64,10 @@ namespace tests.Core.Application.UseCases.LeaveTypes
         [Test(Description = "Should Throws an Exception on Error")]
         public async Task should_throw_an_exception_on_error()
         {
-            var mockLeaveTypeRepo = new Mock<ILeaveTypeRepository>();
+            _mockLeaveTypeRepo.Setup(r => r.Get(It.IsAny<int>())).ReturnsAsync(new LeaveType { Id = 1 });
+            _mockLeaveTypeRepo.Setup(r => r.Remove(It.IsAny<LeaveType>())).ThrowsAsync(new Exception("LeaveRepositoryError"));
 
-            mockLeaveTypeRepo.Setup(r => r.Get(It.IsAny<int>())).ReturnsAsync(new LeaveType { Id = 1 });
-            mockLeaveTypeRepo.Setup(r => r.Remove(It.IsAny<LeaveType>())).ThrowsAsync(new Exception("LeaveRepositoryError"));
-
-            _mockUow.Setup(r => r.leaveTypeRepository).Returns(mockLeaveTypeRepo.Object);
+            _mockUow.Setup(r => r.leaveTypeRepository).Returns(_mockLeaveTypeRepo.Object);
 
             var promise = _sut.Handle(new DeleteLeaveType.Command() { Id = 1 }, CancellationToken.None);
 
@@ -81,15 +83,13 @@ namespace tests.Core.Application.UseCases.LeaveTypes
         [Test(Description = "Should call leaveTypeRepository Remove with correct params and call unitOfWork Save() on Success")]
         public async Task should_call_leave_type_repository_remove_with_correct_params()
         {
-            var mockLeaveType = new LeaveType { Id = 1, Name = "Any Name" };
-
             var request = new DeleteLeaveType.Command() { Id = 1 };
 
-            _mockUow.Setup(r => r.leaveTypeRepository.Get(It.IsAny<int>())).ReturnsAsync(mockLeaveType);
+            _mockUow.Setup(r => r.leaveTypeRepository.Get(It.IsAny<int>())).ReturnsAsync(_leaveType);
 
             var result = await _sut.Handle(request, CancellationToken.None);
 
-            _mockUow.Verify(r => r.leaveTypeRepository.Remove(mockLeaveType), Times.Once);
+            _mockUow.Verify(r => r.leaveTypeRepository.Remove(_leaveType), Times.Once);
 
             _mockUow.Verify(r => r.Save(), Times.Once);
         }
